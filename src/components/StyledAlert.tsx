@@ -1,4 +1,5 @@
 import { Terminal } from "lucide-react";
+import type { JSX } from "react";
 
 import {
   Alert,
@@ -10,7 +11,7 @@ interface Props {
     content: string;
 }
 
-export function StyledAlert(props: Props) {
+export function StyledAlert(props: Props): JSX.Element {
   return (
 	<Alert>
 		<Terminal className={"h-4 w-4"} />
