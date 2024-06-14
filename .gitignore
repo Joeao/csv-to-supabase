@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .env
+
+supabase
+src/data/schema.ts
