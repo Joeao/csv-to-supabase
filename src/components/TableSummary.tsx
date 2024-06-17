@@ -1,4 +1,4 @@
-import { useEffect, useState, type JSX } from "react";
+import { useRef, useState, type JSX } from "react";
 
 import type { Database } from "@/data/schema";
 import DatabaseSchema from "@/data/schema.json";
@@ -7,25 +7,45 @@ import { Table, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 const TableSummary = (): JSX.Element => {
-	const [schemas] = useState(Object.keys(DatabaseSchema.properties));
+	const schemas = useRef(Object.keys(DatabaseSchema.properties));
+	const [schema, setSchema] = useState(schemas.current[0]);
+	
+	const renderTabs = (): JSX.Element[] => {
+		const tables = DatabaseSchema.properties[schema].properties.Tables;
+		const tablesNames = Object.keys(tables.properties);
 
-	const getTable = (): JSX.Element => {
-		const headers = Object.keys(DatabaseSchema.properties[schemas[0]].properties.Tables.properties[schemas[0]].properties);
+		return tablesNames.map((val) => (
+			<TabsTrigger
+				value={val}
+			>
+				{val}
+			</TabsTrigger>		
+		))
+	};
 
-		console.log(headers);
-		return (
-			<Table>
-				<TableHeader>
-					<TableRow>
+	const renderTabsContent = (): JSX.Element[] => {
+		const tables = DatabaseSchema.properties[schema].properties.Tables;
+		const tablesNames = Object.keys(tables.properties);
 
-					</TableRow>
-				</TableHeader>
-			</Table>
-		);
+		return tablesNames.map((val) => (
+			<TabsContent
+				value={val}
+			>
+				<Table>
+					<TableHeader>
+						<TableRow>
+							{Object.keys(tables.properties[val].properties.Row.properties).map((val) => (
+								<TableHead>{val}</TableHead>
+							))}
+						</TableRow>
+					</TableHeader>
+				</Table>
+			</TabsContent>	
+		))
 	};
 
 	const renderSchemaNames = (): JSX.Element[] => {
-		return schemas.map((schema) => (
+		return schemas.current.map((schema) => (
 			<TabsTrigger
 				key={schema}
 				value={schema}
@@ -36,28 +56,31 @@ const TableSummary = (): JSX.Element => {
 	};
 
 	const renderContent = (): JSX.Element[] => {
-		return schemas.map((schema) => {
-			const tableNames = Object.keys(DatabaseSchema.properties[schema].properties.Tables.properties);
-
+		return schemas.current.map((schema) => {
 			return (
 				<TabsContent
 					key={schema}
 					value={schema}
 				>
-					{tableNames}
+					<Tabs defaultValue={Object.keys(DatabaseSchema.properties[schema].properties.Tables.properties)[0]}>
+					<TabsList>
+						{renderTabs()}
+					</TabsList>
+					{renderTabsContent()}
+					</Tabs>
 				</TabsContent>
 			);
 		});
 	};
 
-	useEffect(() => {
-		getTable();
-	}, []);
 
 	return (
 		<Tabs
-			defaultValue={schemas[0]}
-			className={"w-[400px]"}
+			defaultValue={schemas.current[0]}
+			className={"w-[1200px]"}
+			onValueChange={(val) => {
+				setSchema(val);
+			}}
 		>
 			<TabsList>
 				{renderSchemaNames()}
