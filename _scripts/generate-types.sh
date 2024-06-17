@@ -22,8 +22,3 @@ npx supabase init
 
 # Generate types 
 npx supabase gen types typescript --project-id "$PROJECT_REF" --schema public > src/data/schema.ts
-
-
-if [ $? -eq 0 ]; then
-  echo "export const generated = true;" >> src/data/schema.ts
-fi

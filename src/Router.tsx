@@ -2,7 +2,6 @@ import type { Session } from "@supabase/supabase-js";
 import { Fragment, useEffect, useState, type JSX } from "react";
 import { Navigate, RouterProvider, createBrowserRouter } from "react-router-dom";
 
-import { generated } from "@/data/schema";
 import client from "@/lib/supabase";
 import Error from "@/pages/Error";
 
@@ -52,9 +51,6 @@ const authedRouter = createBrowserRouter([
 ]);
 
 const App = (): JSX.Element => {
-	// Bust app if schemas don't exist
-	console.log("schemas generated", generated);
-
 	const [session, setSession] = useState<Session | null>(null);
 	const [checkedSession, setCheckedSession] = useState(false);
 	const searchParams = new URLSearchParams(window.location.href?.split("#")[1]);
