@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 const TableSummary = (): JSX.Element => {
 	const schemas = useRef(Object.keys(DatabaseSchema.properties));
 	const [schema, setSchema] = useState(schemas.current[0]);
-	
+
 	const renderTabs = (): JSX.Element[] => {
 		const tables = DatabaseSchema.properties[schema].properties.Tables;
 		const tablesNames = Object.keys(tables.properties);
@@ -19,8 +19,8 @@ const TableSummary = (): JSX.Element => {
 				value={val}
 			>
 				{val}
-			</TabsTrigger>		
-		))
+			</TabsTrigger>
+		));
 	};
 
 	const renderTabsContent = (): JSX.Element[] => {
@@ -40,8 +40,8 @@ const TableSummary = (): JSX.Element => {
 						</TableRow>
 					</TableHeader>
 				</Table>
-			</TabsContent>	
-		))
+			</TabsContent>
+		));
 	};
 
 	const renderSchemaNames = (): JSX.Element[] => {
@@ -63,16 +63,16 @@ const TableSummary = (): JSX.Element => {
 					value={schema}
 				>
 					<Tabs defaultValue={Object.keys(DatabaseSchema.properties[schema].properties.Tables.properties)[0]}>
-					<TabsList>
-						{renderTabs()}
-					</TabsList>
-					{renderTabsContent()}
+						<TabsList>
+							{renderTabs()}
+						</TabsList>
+
+						{renderTabsContent()}
 					</Tabs>
 				</TabsContent>
 			);
 		});
 	};
-
 
 	return (
 		<Tabs
