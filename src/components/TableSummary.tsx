@@ -7,8 +7,8 @@ import { Table, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 const TableSummary = (): JSX.Element => {
-	const schemas = useRef(Object.keys(DatabaseSchema.properties));
-	const [schema, setSchema] = useState(schemas.current[0]);
+	const schemas = useRef(Object.keys(DatabaseSchema.properties) as (keyof Database)[]);
+	const [schema, setSchema] = useState<keyof Database>(schemas.current[0]);
 
 	const renderTabs = (): JSX.Element[] => {
 		const tables = DatabaseSchema.properties[schema].properties.Tables;
@@ -16,6 +16,7 @@ const TableSummary = (): JSX.Element => {
 
 		return tablesNames.map((val) => (
 			<TabsTrigger
+				key={val}
 				value={val}
 			>
 				{val}
@@ -24,18 +25,19 @@ const TableSummary = (): JSX.Element => {
 	};
 
 	const renderTabsContent = (): JSX.Element[] => {
-		const tables = DatabaseSchema.properties[schema].properties.Tables;
+		const tables = (DatabaseSchema.properties[schema]).properties.Tables;
 		const tablesNames = Object.keys(tables.properties);
 
 		return tablesNames.map((val) => (
 			<TabsContent
+				key={val}
 				value={val}
 			>
 				<Table>
 					<TableHeader>
 						<TableRow>
-							{Object.keys(tables.properties[val].properties.Row.properties).map((val) => (
-								<TableHead>{val}</TableHead>
+							{Object.keys(tables.properties[val as keyof typeof tables.properties].properties.Row.properties).map((header) => (
+								<TableHead key={header}>{header}</TableHead>
 							))}
 						</TableRow>
 					</TableHeader>
@@ -45,24 +47,24 @@ const TableSummary = (): JSX.Element => {
 	};
 
 	const renderSchemaNames = (): JSX.Element[] => {
-		return schemas.current.map((schema) => (
+		return schemas.current.map((schemaName) => (
 			<TabsTrigger
-				key={schema}
-				value={schema}
+				key={schemaName}
+				value={schemaName}
 			>
-				{schema}
+				{schemaName}
 			</TabsTrigger>
 		));
 	};
 
 	const renderContent = (): JSX.Element[] => {
-		return schemas.current.map((schema) => {
+		return schemas.current.map((schemaName) => {
 			return (
 				<TabsContent
-					key={schema}
-					value={schema}
+					key={schemaName}
+					value={schemaName}
 				>
-					<Tabs defaultValue={Object.keys(DatabaseSchema.properties[schema].properties.Tables.properties)[0]}>
+					<Tabs defaultValue={Object.keys(DatabaseSchema.properties[schemaName].properties.Tables.properties)[0]}>
 						<TabsList>
 							{renderTabs()}
 						</TabsList>
@@ -79,7 +81,7 @@ const TableSummary = (): JSX.Element => {
 			defaultValue={schemas.current[0]}
 			className={"w-[1200px]"}
 			onValueChange={(val) => {
-				setSchema(val);
+				setSchema(val as keyof Database);
 			}}
 		>
 			<TabsList>
