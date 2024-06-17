@@ -4,12 +4,15 @@ import { Fragment, type JSX } from "react";
 import { InputFile } from "@/components/InputFile";
 import TableSummary from "@/components/TableSummary";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import DataContext from "@/context/Data.context";
+import useData from "@/context/Data.hook";
 import DatabaseSchema from "@/data/schema.json";
 
 const Home = (): JSX.Element => {
+	const data = useData();
+
 	const renderContent = (): JSX.Element => {
 		if (!DatabaseSchema?.properties) {
-			console.log("no data");
 			return (
 				<Alert>
 					<Terminal className={"h-4 w-4"} />
@@ -24,11 +27,15 @@ const Home = (): JSX.Element => {
 		}
 
 		return (
-			<Fragment>
-				<TableSummary />
+			<DataContext.Provider value={data}>
+				<Fragment>
+					<TableSummary />
 
-				<InputFile />
-			</Fragment>
+					<InputFile
+						action={(fileData) => data.setHeaders(Object.keys(fileData[0]))}
+					/>
+				</Fragment>
+			</DataContext.Provider>
 		);
 	};
 
