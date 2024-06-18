@@ -1,8 +1,8 @@
 import { Terminal } from "lucide-react";
 import { Fragment, type JSX } from "react";
 
+import TableSummary from "@/components/DataTable";
 import { InputFile } from "@/components/InputFile";
-import TableSummary from "@/components/TableSummary";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import DataContext from "@/context/Data.context";

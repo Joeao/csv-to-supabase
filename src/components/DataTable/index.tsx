@@ -4,9 +4,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import DataContext from "@/context/Data.context";
 import DatabaseSchema from "@/data/schema.json";
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 const TableSummary = (): JSX.Element => {
 	const data = useContext(DataContext);
