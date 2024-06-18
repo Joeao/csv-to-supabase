@@ -144,6 +144,86 @@ const TableSummary = (): JSX.Element => {
 		);
 	};
 
+	const getForeignKeys = (tableName: string): {
+		foreignKeys: string[];
+		relations: string[];
+		columns: string[];
+	 } => {
+		let foreignKeys: string[] = [];
+		let relations: string[] = [];
+		let columns: string[] = [];
+		const tables = (DatabaseSchema.properties[data.activeSchema]).properties.Tables;
+
+		try {
+			const typedItems = (tables.properties[tableName as keyof typeof tables.properties].properties.Relationships as any).items as {
+				properties: {
+					columns: {
+						items: {
+							const: string;
+						}[];
+					};
+					referencedRelation: {
+						const: string;
+					};
+					referencedColumns: {
+						items: {
+							const: string;
+						}[];
+					};
+			}; }[];
+
+			foreignKeys = typedItems?.map((item) => item.properties.columns.items[0].const) || [];
+			relations = typedItems?.map((item) => item.properties.referencedRelation.const) || [];
+			columns = typedItems?.map((item) => item.properties.referencedColumns.items[0].const) || [];
+		} catch {
+			console.log("No foreign keys");
+		}
+
+		return {
+			foreignKeys,
+			relations,
+			columns,
+		};
+	};
+
+	const renderForeignKeyRelation = (tableName: string, header: string): JSX.Element | JSX.Element[] => {
+		const foreignKeys = getForeignKeys(tableName);
+
+		if (!foreignKeys.foreignKeys.includes(header)) {
+			return (
+				<Fragment />
+			);
+		}
+
+		const keyIndex = foreignKeys.foreignKeys.findIndex((val) => val === header);
+
+		return (
+			<div
+				className={"flex flex-col"}
+			>
+				<p>Relation: {foreignKeys.relations[keyIndex]}</p>
+
+				<p>Column: {foreignKeys.columns[keyIndex]}</p>
+
+				<p>CSV column select</p>
+
+				<p>Relation column select</p>
+
+				<Select
+					onValueChange={(newVal) => {
+						console.log(newVal);
+					}}
+				>
+					<SelectTrigger>
+						<SelectValue placeholder={"Select from CSV"} />
+					</SelectTrigger>
+
+					{renderSelectItems()}
+				</Select>
+			</div>
+		);
+	};
+
 	const renderContentlessBody = (val: string): JSX.Element => {
 		if (!data.headers?.length) {
 			return (
@@ -152,28 +232,24 @@ const TableSummary = (): JSX.Element => {
 		}
 
 		// To Do: If mapping saved, return fragment
-
 		const tables = (DatabaseSchema.properties[data.activeSchema]).properties.Tables;
-		let foreignKeys: string[] = [];
-
-		try {
-			const typedItems = (tables.properties[val as keyof typeof tables.properties].properties.Relationships as any).items as {
-				properties: { columns: { items: { const: string }[] };
-			}; }[];
-
-			foreignKeys = typedItems?.map((item) => item.properties.columns.items[0].const) || [];
-		} catch {
-			console.log("No foreign keys");
-		}
+		const foreignKeys = getForeignKeys(val).foreignKeys;
 
 		return (
 			<TableBody>
 				<TableRow>
 					{Object.keys(tables.properties[val as keyof typeof tables.properties].properties.Row.properties).map((header) => (
-						<TableCell key={header}>
-							{renderSelects(header, foreignKeys)}
+						<TableCell
+							key={header}
+							className={"middle"}
+						>
+							<div className={"flex flex-col justify-start gap-2"}>
+								{renderSelects(header, foreignKeys)}
 
-							{renderOptions(header)}
+								{renderOptions(header)}
+
+								{renderForeignKeyRelation(val, header)}
+							</div>
 						</TableCell>
 					))}
 				</TableRow>
