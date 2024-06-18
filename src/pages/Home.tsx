@@ -30,7 +30,7 @@ const Home = (): JSX.Element => {
 					if (data.activeTable && validatedData.length) {
 						console.log(data.activeTable, formattedData);
 						client().schema(data.activeSchema).from(
-							// eslint-disable-line @typescript-eslint/no-explicit-any
+
 							data.activeTable as any // Much easier to assign any as long as schema is dynamically set
 						).insert(formattedData)
 						.then((val) => {
