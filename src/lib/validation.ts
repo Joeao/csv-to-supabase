@@ -3,16 +3,14 @@ import type DataRow from "@/interface/DataRow";
 
 export const validateData = (data: Data["rows"], mapping: Data["mapping"]): DataRow[] => {
 	const cleanData: DataRow[] = [];
-	const stringifiedRows: string[] = [];
 
 	for (let i = 0; i < data.length; i++) {
 		const row = data[i];
+		let canPush = true;
 
 		for (let j = 0; j < mapping.length; j++) {
 			// If key exists in row
 			if (mapping[j][1] in row) {
-				let canPush = true;
-
 				// If nullable not allowed
 				if (!mapping[j][2].includes("nullable")) {
 					// Check if null, undefined or empty
@@ -22,21 +20,20 @@ export const validateData = (data: Data["rows"], mapping: Data["mapping"]): Data
 				}
 
 				if (canPush) {
-					const stringifiedRow = String(row[mapping[j][1]]);
-
 					if (mapping[j][2].includes("deduplicate")) {
-						const rowInCleanData = stringifiedRows.find((r) => r === stringifiedRow);
+						const rowInCleanData = cleanData.find((r) => r[mapping[j][1]] === row[mapping[j][1]]);
 
-						if (!rowInCleanData) {
-							cleanData.push(row);
-							stringifiedRows.push(stringifiedRow);
+						if (rowInCleanData) {
+							canPush = false;
+							console.log(false);
 						}
-					} else {
-						cleanData.push(row);
-						stringifiedRows.push(stringifiedRow);
 					}
 				}
 			}
+		}
+
+		if (canPush) {
+			cleanData.push(row);
 		}
 	}
 
