@@ -5,7 +5,7 @@ import type DatabaseSchema from "@/data/schema.json";
 import type DataRow from "@/interface/DataRow";
 
 export interface Data {
-	mapping: [string, string, string[]][];
+	mapping: [tableName: string, csvHeader: string, instructions: string[]][];
 	setMapping: Dispatch<SetStateAction<[string, string, string[]][]>>;
 	headers: string[];
 	setHeaders: Dispatch<SetStateAction<string[]>>;

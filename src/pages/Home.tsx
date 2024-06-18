@@ -9,7 +9,7 @@ import DataContext from "@/context/Data.context";
 import useData from "@/context/Data.hook";
 import DatabaseSchema from "@/data/schema.json";
 import client from "@/lib/supabase";
-import { validateData } from "@/lib/validation";
+import { formatData, validateData } from "@/lib/validation";
 
 const Home = (): JSX.Element => {
 	const data = useData();
@@ -23,22 +23,22 @@ const Home = (): JSX.Element => {
 			<Button
 				variant={"default"}
 				onClick={() => {
-					// To Do:
-					//	Validate data
-					// 	Clone valid data
-					// 	Highlight invalid data
-
 					const validatedData = validateData(data.rows, data.mapping);
+					const formattedData = formatData(validatedData, data.mapping);
 
 					if (data.activeTable && validatedData.length) {
-						console.log(data.activeTable, validatedData);
-						// client().from(data.activeTable).insert(data.rows);
+						console.log(data.activeTable, formattedData);
+						client().schema(data.activeSchema).from(
+							// eslint-disable-line @typescript-eslint/no-explicit-any
+							data.activeTable as any // Much easier to assign any as long as schema is dynamically set
+						).insert(formattedData)
+						.then((val) => {
+							console.log(val);
+						});
 					}
-
-					//
 				}}
 			>
-				Preview Data
+				Upload Data
 			</Button>
 		);
 	};
@@ -65,7 +65,6 @@ const Home = (): JSX.Element => {
 
 					<InputFile
 						action={(fileData) => {
-							console.log(fileData);
 							data.setHeaders(Object.keys(fileData[0]));
 
 							data.setRows(fileData);

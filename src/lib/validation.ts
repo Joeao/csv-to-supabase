@@ -25,7 +25,6 @@ export const validateData = (data: Data["rows"], mapping: Data["mapping"]): Data
 
 						if (rowInCleanData) {
 							canPush = false;
-							console.log(false);
 						}
 					}
 				}
@@ -38,4 +37,19 @@ export const validateData = (data: Data["rows"], mapping: Data["mapping"]): Data
 	}
 
 	return cleanData;
+};
+
+export const formatData = (data: DataRow[], mapping: Data["mapping"]): DataRow[] => {
+	return data.map((row) => {
+		const formattedRow: Partial<DataRow> = {};
+
+		for (const [key, value] of Object.entries(row)) {
+			if (mapping.find((m) => m[1] === key)) {
+				const matchedMapping = mapping.find((m) => m[1] === key);
+				formattedRow[matchedMapping![0]] = value;
+			}
+		}
+
+		return formattedRow as DataRow;
+	});
 };
