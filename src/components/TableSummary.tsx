@@ -31,8 +31,26 @@ const TableSummary = (): JSX.Element => {
 
 	const renderSelects = (val: string): JSX.Element => {
 		const defaultVal = data.headers.includes(val) ? val : "not_set";
+
 		return (
-			<Select defaultValue={defaultVal}>
+			<Select
+				defaultValue={"not_set"}
+				onValueChange={(newVal) => {
+					const headerIndex = data.mapping.findIndex((el) => el[0] === val);
+
+					if (headerIndex === -1) {
+						data.setMapping([
+							...data.mapping,
+							[val, newVal],
+						]);
+					} else {
+						const newMapping = [...data.mapping];
+						newMapping[headerIndex] = [val, newVal];
+
+						data.setMapping(newMapping);
+					}
+				}}
+			>
 				<SelectTrigger>
 					<SelectValue placeholder={defaultVal} />
 				</SelectTrigger>
@@ -63,12 +81,14 @@ const TableSummary = (): JSX.Element => {
 		);
 	};
 
-	const renderBody = (val: string): JSX.Element => {
+	const renderContentlessBody = (val: string): JSX.Element => {
 		if (!data.headers?.length) {
 			return (
 				<Fragment />
 			);
 		}
+
+		// To Do: If mapping saved, return fragment
 
 		const tables = (DatabaseSchema.properties[schema]).properties.Tables;
 
@@ -76,11 +96,19 @@ const TableSummary = (): JSX.Element => {
 			<TableBody>
 				<TableRow>
 					{Object.keys(tables.properties[val as keyof typeof tables.properties].properties.Row.properties).map((header) => (
-						<TableCell key={header}>{renderSelects(val)}</TableCell>
+						<TableCell key={header}>{renderSelects(header)}</TableCell>
 					))}
 				</TableRow>
 			</TableBody>
 		);
+	};
+
+	const renderContentBody = (): JSX.Element => {
+		// To Do: If no mapping saved, return fragment
+
+		// Return data
+
+		return <Fragment />;
 	};
 
 	const renderTabsContent = (): JSX.Element[] => {
@@ -101,7 +129,9 @@ const TableSummary = (): JSX.Element => {
 						</TableRow>
 					</TableHeader>
 
-					{renderBody(val)}
+					{renderContentlessBody(val)}
+
+					{renderContentBody()}
 				</Table>
 			</TabsContent>
 		));
@@ -125,7 +155,12 @@ const TableSummary = (): JSX.Element => {
 					key={schemaName}
 					value={schemaName}
 				>
-					<Tabs defaultValue={Object.keys(DatabaseSchema.properties[schemaName].properties.Tables.properties)[0]}>
+					<Tabs
+						defaultValue={Object.keys(DatabaseSchema.properties[schemaName].properties.Tables.properties)[0]}
+						onValueChange={() => {
+							data.setMapping([]);
+						}}
+					>
 						<TabsList>
 							{renderTabs()}
 						</TabsList>
@@ -140,7 +175,7 @@ const TableSummary = (): JSX.Element => {
 	return (
 		<Tabs
 			defaultValue={schemas.current[0]}
-			className={"w-[1200px]"}
+			className={"w-[1440px]"}
 			onValueChange={(val) => {
 				setSchema(val as keyof Database);
 			}}
