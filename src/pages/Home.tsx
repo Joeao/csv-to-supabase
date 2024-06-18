@@ -1,5 +1,6 @@
 import { Terminal } from "lucide-react";
 import { Fragment, type JSX } from "react";
+import { toast } from "sonner";
 
 import TableSummary from "@/components/DataTable";
 import { InputFile } from "@/components/InputFile";
@@ -34,6 +35,10 @@ const Home = (): JSX.Element => {
 						).insert(formattedData)
 						.then((val) => {
 							console.log(val);
+
+							if (val.status < 300 && val.status >= 200) {
+								toast(`${formattedData.length} rows inserted!`);
+							}
 						});
 					}
 				}}
