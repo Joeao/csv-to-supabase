@@ -1,23 +1,21 @@
 import { Fragment, useContext, useRef, type JSX } from "react";
 
-import { Checkbox } from "@/components/ui/checkbox";
 import DataContext from "@/context/Data.context";
 import DatabaseSchema from "@/data/schema.json";
 import { getForeignKeys } from "@/lib/data";
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Select, SelectTrigger, SelectValue } from "../ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
+import Options from "./Options";
+import SelectItems from "./SelectItems/CsvData";
+import Generic from "./SelectItems/Generic";
 import Selects from "./Selects";
 
-// To Do: Add loading
 const TableSummary = (): JSX.Element => {
 	const data = useContext(DataContext);
 	const schemas = useRef(Object.keys(DatabaseSchema.properties) as (keyof typeof DatabaseSchema["properties"])[]);
-
-	// Each handled similarly - no data will be assigned
-	const defaultHeaders = ["auto_generated", "not_set", "foreign_key"];
 
 	const renderTabs = (): JSX.Element[] => {
 		const tables = DatabaseSchema.properties[data.activeSchema].properties.Tables;
@@ -33,87 +31,6 @@ const TableSummary = (): JSX.Element => {
 		));
 	};
 
-	const renderSelectItems = (): JSX.Element => {
-		return (
-			<SelectContent>
-				{[...defaultHeaders, ...data.headers].flatMap((val) => {
-					if (!val?.length) {
-						return [];
-					}
-
-					return (
-						<SelectItem
-							value={val}
-							key={val}
-						>
-							{val}
-						</SelectItem>
-					);
-				})}
-			</SelectContent>
-		);
-	};
-
-	const check = (checked: boolean, checkValue: string, header: string): void => {
-		const headerIndex = data.mapping.findIndex((el) => el[0] === header);
-
-		if (headerIndex >= -1) {
-			const newMapping = [...data.mapping];
-			const index = newMapping.findIndex((val) => {
-				return val[2].includes(checkValue);
-			});
-
-			if (index > -1 && !checked) {
-				newMapping[headerIndex][2].splice(index, 1);
-			} else if (checked) {
-				newMapping[headerIndex][2].push(checkValue);
-			}
-
-			data.setMapping(newMapping);
-		}
-	};
-
-	const renderOptions = (header: string): JSX.Element => {
-		const disabled = !data.mapping.some((el) => el[0] === header);
-		return (
-			<div className={"flex gap-2 flex-col"}>
-				<div className={"flex items-center space-x-2"}>
-					<Checkbox
-						id={"nullable"}
-						disabled={disabled}
-						onCheckedChange={(checked) => {
-							check(checked as boolean, "nullable", header);
-						}}
-					/>
-
-					<label
-						htmlFor={"nullable"}
-						className={"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"}
-					>
-						Nullable
-					</label>
-				</div>
-
-				<div className={"flex items-center space-x-2"}>
-					<Checkbox
-						id={"deduplicate"}
-						disabled={disabled}
-						onCheckedChange={(checked) => {
-							check(checked as boolean, "deduplicate", header);
-						}}
-					/>
-
-					<label
-						htmlFor={"deduplicate"}
-						className={"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"}
-					>
-						Deduplicate
-					</label>
-				</div>
-			</div>
-		);
-	};
-
 	const renderForeignKeyRelation = (tableName: string, header: string): JSX.Element | JSX.Element[] => {
 		const foreignKeys = getForeignKeys(tableName, data.activeSchema);
 
@@ -125,29 +42,49 @@ const TableSummary = (): JSX.Element => {
 
 		const keyIndex = foreignKeys.foreignKeys.findIndex((val) => val === header);
 
+		const tables = (DatabaseSchema.properties[data.activeSchema]).properties.Tables;
+
 		return (
 			<div
-				className={"flex flex-col"}
+				className={"flex flex-col gap-2"}
 			>
-				<p>Relation: {foreignKeys.relations[keyIndex]}</p>
+				<p>{`Get "${foreignKeys.columns[keyIndex]}" where following match`}</p>
 
-				<p>Column: {foreignKeys.columns[keyIndex]}</p>
-
-				<p>CSV column select</p>
-
-				<p>Relation column select</p>
-
-				<Select
-					onValueChange={(newVal) => {
+				<div className={"flex gap-2 align-center"}>
+					<Select
+						onValueChange={(newVal) => {
 						console.log(newVal);
 					}}
-				>
-					<SelectTrigger>
-						<SelectValue placeholder={"Select from CSV"} />
-					</SelectTrigger>
+					>
+						<SelectTrigger>
+							<SelectValue placeholder={"Select from CSV"} />
+						</SelectTrigger>
 
-					{renderSelectItems()}
-				</Select>
+						<SelectItems defaultHeaders={false} />
+					</Select>
+
+					<p>{"=>"}</p>
+
+					<Select
+						onValueChange={(newVal) => {
+						console.log(newVal);
+					}}
+					>
+						<SelectTrigger>
+							<SelectValue placeholder={`Select from ${foreignKeys.relations[keyIndex]}`} />
+						</SelectTrigger>
+
+						<Generic
+							items={
+								Object.keys(
+									tables.properties[
+										foreignKeys.relations[keyIndex] as keyof typeof tables.properties
+									].properties.Row.properties
+								)
+							}
+						/>
+					</Select>
+				</div>
 			</div>
 		);
 	};
@@ -177,7 +114,7 @@ const TableSummary = (): JSX.Element => {
 									foreignKeys={foreignKeys}
 								/>
 
-								{renderOptions(header)}
+								<Options header={header} />
 
 								{renderForeignKeyRelation(val, header)}
 							</div>
