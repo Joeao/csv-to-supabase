@@ -84,7 +84,7 @@ const TableSummary = (): JSX.Element => {
 		);
 	};
 
-	const check = (checked: boolean, checkValue: string, header: string) => {
+	const check = (checked: boolean, checkValue: string, header: string): void => {
 		const headerIndex = data.mapping.findIndex((el) => el[0] === header);
 
 		if (headerIndex >= -1) {
