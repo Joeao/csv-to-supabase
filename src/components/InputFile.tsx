@@ -2,9 +2,10 @@ import { type JSX } from "react";
 import CSVReader from "react-csv-reader";
 
 import { Label } from "@/components/ui/label";
+import type DataRow from "@/interface/DataRow";
 
 interface Props {
-	action: (data: any[]) => void;
+	action: (data: DataRow[]) => void;
 }
 
 export function InputFile(props: Props): JSX.Element {

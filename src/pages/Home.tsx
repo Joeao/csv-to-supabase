@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import DataContext from "@/context/Data.context";
 import useData from "@/context/Data.hook";
 import DatabaseSchema from "@/data/schema.json";
+import client from "@/lib/supabase";
+import { validateData } from "@/lib/validation";
 
 const Home = (): JSX.Element => {
 	const data = useData();
@@ -25,6 +27,15 @@ const Home = (): JSX.Element => {
 					//	Validate data
 					// 	Clone valid data
 					// 	Highlight invalid data
+
+					const validatedData = validateData(data.rows, data.mapping);
+
+					if (data.activeTable && validatedData.length) {
+						console.log(data.activeTable, validatedData);
+						// client().from(data.activeTable).insert(data.rows);
+					}
+
+					//
 				}}
 			>
 				Preview Data
@@ -57,7 +68,7 @@ const Home = (): JSX.Element => {
 							console.log(fileData);
 							data.setHeaders(Object.keys(fileData[0]));
 
-							data.setRows(fileData.slice(1));
+							data.setRows(fileData);
 						}}
 					/>
 
