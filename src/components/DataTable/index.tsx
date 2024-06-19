@@ -53,8 +53,17 @@ const TableSummary = (): JSX.Element => {
 				<div className={"flex gap-2 align-center"}>
 					<Select
 						onValueChange={(newVal) => {
-						console.log(newVal);
-					}}
+							const index = data.foreignKeyMapping.findIndex((val) => val[4] === header);
+							const foreignKeyMappingClone = [...data.foreignKeyMapping];
+
+							if (index > -1) {
+								foreignKeyMappingClone[index][2] = newVal;
+							} else {
+								foreignKeyMappingClone.push([foreignKeys.columns[keyIndex], foreignKeys.relations[keyIndex], newVal, "", header]);
+							}
+
+							data.setForeignKeyMapping(foreignKeyMappingClone);
+						}}
 					>
 						<SelectTrigger>
 							<SelectValue placeholder={"Select from CSV"} />
@@ -67,8 +76,17 @@ const TableSummary = (): JSX.Element => {
 
 					<Select
 						onValueChange={(newVal) => {
-						console.log(newVal);
-					}}
+							const index = data.foreignKeyMapping.findIndex((val) => val[4] === header);
+							const foreignKeyMappingClone = [...data.foreignKeyMapping];
+
+							if (index > -1) {
+								foreignKeyMappingClone[index][3] = newVal;
+							} else {
+								foreignKeyMappingClone.push([foreignKeys.columns[keyIndex], foreignKeys.relations[keyIndex], "", newVal, header]);
+							}
+
+							data.setForeignKeyMapping(foreignKeyMappingClone);
+						}}
 					>
 						<SelectTrigger>
 							<SelectValue placeholder={`Select from ${foreignKeys.relations[keyIndex]}`} />

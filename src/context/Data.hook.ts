@@ -8,6 +8,7 @@ import type { Data } from "./Data.context";
 export default (): Data => {
 	const initialSchema = Object.keys(DatabaseSchema.properties)?.[0] as (keyof typeof DatabaseSchema["properties"]);
 	const [mapping, setMapping] = useState<[string, string, string[]][]>([]);
+	const [foreignKeyMapping, setForeignKeyMapping] = useState<[string, string, string, string, string][]>([]);
 	const [headers, setHeaders] = useState<string[]>([]);
 	const [rows, setRows] = useState<DataRow[]>([]);
 	const [validRows, setValidRows] = useState<DataRow[]>([]);
@@ -27,5 +28,7 @@ export default (): Data => {
 		setActiveSchema,
 		activeTable,
 		setActiveTable,
+		foreignKeyMapping,
+		setForeignKeyMapping,
 	};
 };

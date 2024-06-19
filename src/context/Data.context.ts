@@ -7,6 +7,8 @@ import type DataRow from "@/interface/DataRow";
 export interface Data {
 	mapping: [tableName: string, csvHeader: string, instructions: string[]][];
 	setMapping: Dispatch<SetStateAction<[string, string, string[]][]>>;
+	foreignKeyMapping: [foreignKey: string, tableName: string, csvPropName: string, tablePropName: string, currentTablePropName: string][];
+	setForeignKeyMapping: Dispatch<SetStateAction<[string, string, string, string, string][]>>;
 	headers: string[];
 	setHeaders: Dispatch<SetStateAction<string[]>>;
 	rows: DataRow[];
