@@ -10,29 +10,30 @@ import DataContext from "@/context/Data.context";
 import useData from "@/context/Data.hook";
 import DatabaseSchema from "@/data/schema.json";
 import client from "@/lib/supabase";
-import { formatData, validateData } from "@/lib/validation";
+import { cleanDataFields, formatPropNames, mapForeignKeys, validateData } from "@/lib/validation";
 
 const Home = (): JSX.Element => {
 	const data = useData();
 
 	const renderSaveMapping = (): JSX.Element => {
-		if (!data.mapping?.length) {
+		if (!data.mapping?.length && !data.foreignKeyMapping?.length) {
 			return <Fragment />;
 		}
 
 		return (
 			<Button
 				variant={"default"}
-				onClick={() => {
+				onClick={async () => {
 					const validatedData = validateData(data.rows, data.mapping);
-					const formattedData = formatData(validatedData, data.mapping);
+					const formattedData = formatPropNames(validatedData, data.mapping, data.foreignKeyMapping);
+					const foreignKeyData = await mapForeignKeys(formattedData, data.foreignKeyMapping);
 
-					if (data.activeTable && validatedData.length) {
-						console.log(data.activeTable, formattedData);
+					const cleanData = cleanDataFields(foreignKeyData, data.activeSchema, data.activeTable);
+
+					if (data.activeTable && cleanData.length) {
 						client().schema(data.activeSchema).from(
-
 							data.activeTable as any // Much easier to assign any as long as schema is dynamically set
-						).insert(formattedData)
+						).insert(cleanData)
 						.then((val) => {
 							console.log(val);
 
